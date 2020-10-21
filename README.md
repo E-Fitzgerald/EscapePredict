@@ -1,3 +1,2 @@
 # EscapePredict
-Personal project to build a model that will predict my personal rating of an escape room.
-try to push again!
+Personal project and CS221 Final project to create a recommendation system for California escape rooms.
