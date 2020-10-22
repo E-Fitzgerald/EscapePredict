@@ -88,7 +88,7 @@ df_scaled = format_data(data_scaled, training=False)
 df_binary = format_data(data_binary, training=False)
 
 X = []
-for index, row in df_original.iterrows():
+for index, row in df_scaled.iterrows():
     X.append(row[2:])
 
 
@@ -110,7 +110,7 @@ reg = lin_reg.fit(X_train, Y_train)
 preds_val = reg.predict(X)
 preds = []
 for p in preds_val:
-    if p >= 44.5:
+    if p >= 50:
         preds.append(1)
     else:
         preds.append(0)
