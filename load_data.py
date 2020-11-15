@@ -77,6 +77,8 @@ def check_answers(preds, answers):
             else:
                 false_pos += 1
     
+    total_rooms = total_one+total_zero
+
 
     print("================================================================================")
     print("Percentage correct: ", correct/(total_one+total_zero))
@@ -88,6 +90,9 @@ def check_answers(preds, answers):
     print("Number of rooms to recommend: ", total_one)
     print("Number of False Negatives: ", false_neg)
     print("Percentage of True that were correctly classified: ", 1-(false_neg/total_one))
+    print("---------------------------------------------------------------------------------")
+    print("Percentage of non-recommended rooms that were actually bad: ", (total_zero-false_pos)/((total_zero-false_pos)+false_neg))
+    print("Percentage of recommended rooms that were actually good: ", (total_one-false_neg)/((total_one-false_neg)+false_pos))
     print("================================================================================")
 
     return correct, false_pos, false_neg, total_one, total_zero
