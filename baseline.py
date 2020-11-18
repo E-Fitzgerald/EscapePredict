@@ -19,8 +19,10 @@ def split_data():
     df_original = format_data(data_original, training=False)
 
     X = []
+    Y = []
     for index, row in df_original.iterrows():
         X.append(row[2:])
+        Y.append(row[1])
 
     df = format_data(data_original)
 
@@ -32,7 +34,7 @@ def split_data():
         X_train.append(row[2:])
         Y_train.append(row[1])
         
-    return X, X_train, Y_train, answers
+    return X, Y, X_train, Y_train, answers
 
 
 def BaselineModel(X, X_train, Y_train):

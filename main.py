@@ -1,12 +1,32 @@
 import os.path
 import pandas as pd
 import math
+import matplotlib.pyplot as plt
 from load_data import load_data, format_data, check_answers, group_together, elizabeth_known
 from collab_filtering import setup_data, CollabFilteringModel
 from baseline import split_data, BaselineModel
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+from math import sqrt
+
+
 import sys
 
 model = int(sys.argv[1])
+
+def plot_roc(true_positive, false_positive):
+    plt.figure()
+    lw = 2
+    plt.plot(false_positive, true_positive, color='darkorange',
+            lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[2])
+    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic example')
+    plt.legend(loc="lower right")
+    plt.show()
 
 def c_filtering(option, percent, gridsearch):
     ids, data, answers = setup_data()
@@ -30,13 +50,14 @@ def c_filtering(option, percent, gridsearch):
             preds.append(0)
 
 
-    check_answers(preds, answers)
+    stats = check_answers(preds, answers)
 
 def baseline(percent):
-    X, X_train, Y_train, answers = split_data()
+    X, Y, X_train, Y_train, answers = split_data()
     reg = BaselineModel(X, X_train, Y_train)
 
     preds_val = reg.predict(X)
+
     
     ids = list(range(1,190))
     pairs=[]
@@ -53,8 +74,13 @@ def baseline(percent):
             preds.append(1)
         else:
             preds.append(0)
-            
-    check_answers(preds, answers)
+    
+    rms = sqrt(mean_squared_error(answers, preds))
+    print("rms: ", rms)
+    mae = sqrt(mean_absolute_error(answers, preds))
+    print("mae: ", mae)
+
+    stats = check_answers(preds, answers)
 
 
 if __name__ == '__main__':

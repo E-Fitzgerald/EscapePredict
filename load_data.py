@@ -78,10 +78,14 @@ def check_answers(preds, answers):
                 false_pos += 1
     
     total_rooms = total_one+total_zero
+    true_positive = total_one-false_neg
+    true_negative = total_zero-false_pos
 
 
     print("================================================================================")
-    print("Percentage correct: ", correct/(total_one+total_zero))
+    print("Percentage correct: ", correct/total_rooms)
+    print("True Positives: ", true_positive)
+    print("True Negatives: ", true_negative)
     print("---------------------------------------------------------------------------------")
     print("Number of rooms to not recommend: ", total_zero)
     print("Number of False Positives: ", false_pos)
@@ -91,11 +95,11 @@ def check_answers(preds, answers):
     print("Number of False Negatives: ", false_neg)
     print("Percentage of True that were correctly classified: ", 1-(false_neg/total_one))
     print("---------------------------------------------------------------------------------")
-    print("Percentage of non-recommended rooms that were actually bad: ", (total_zero-false_pos)/((total_zero-false_pos)+false_neg))
-    print("Percentage of recommended rooms that were actually good: ", (total_one-false_neg)/((total_one-false_neg)+false_pos))
+    print("Percentage of non-recommended rooms that were actually bad: ", (true_negative)/(true_negative+false_neg))
+    print("Percentage of recommended rooms that were actually good: ", (true_positive)/(true_positive+false_pos))
     print("================================================================================")
 
-    return correct, false_pos, false_neg, total_one, total_zero
+    return [correct, true_positive, false_pos, true_negative, false_neg, total_one, total_zero]
 
 def group_together(df, ids, column):
     items = []
