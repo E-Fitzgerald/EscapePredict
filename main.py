@@ -6,11 +6,11 @@ from collab_filtering import setup_data, CollabFilteringModel
 from baseline import split_data, BaselineModel
 import sys
 
-model = sys.argv[1]
+model = int(sys.argv[1])
 
-def c_filtering(percent):
+def c_filtering(option, percent, gridsearch):
     ids, data, answers = setup_data()
-    algo = CollabFilteringModel(data)
+    algo = CollabFilteringModel(data, option, gridsearch)
 
     pairs = []
     preds = []
@@ -18,12 +18,6 @@ def c_filtering(percent):
         prediction = algo.predict(1, i)
         val = prediction.est
         pairs.append((i, val))
-        '''
-        if val >= 7.7:
-            preds.append(1)
-        else:
-            preds.append(0)
-        '''
 
     roomsNotDone = [x for x in pairs if x[0] not in elizabeth_known]
     length = len(roomsNotDone)
@@ -38,14 +32,24 @@ def c_filtering(percent):
 
     check_answers(preds, answers)
 
-def baseline():
+def baseline(percent):
     X, X_train, Y_train, answers = split_data()
     reg = BaselineModel(X, X_train, Y_train)
 
     preds_val = reg.predict(X)
+    
+    ids = list(range(1,190))
+    pairs=[]
+    for i in ids:
+        pairs.append((i, preds_val[i-1]))
+
+    roomsNotDone = [x for x in pairs if x[0] not in elizabeth_known]
+    length = len(roomsNotDone)
+    percentage = percent / 100.0
+    threshold = sorted(roomsNotDone, key = lambda x: x[1])[int((length - 1) * percentage)][1]
     preds = []
-    for p in preds_val:
-        if p >= 50:
+    for i in sorted(pairs, key = lambda x: x[0]):
+        if i[1] >= threshold:
             preds.append(1)
         else:
             preds.append(0)
@@ -54,14 +58,16 @@ def baseline():
 
 
 if __name__ == '__main__':
-    if model == "baseline":
-        baseline()
-    elif model == 'k-nearest-neighbors':
-        if len(sys.argv) == 3:
+    if model in [0, 1, 2, 3]:
+        if (len(sys.argv) == 3 and model==0) or (len(sys.argv)==4):
             p = float(sys.argv[2])
-            if 0 <= p <= 100:
-                c_filtering(p)
+            if model == 0:
+                baseline(p)
+            elif 1 <= p <= 100:
+                g = int(sys.argv[3])
+                c_filtering(model, p, g)
             else:
-                print("Usage: <model, percent>, %s is not a valid percent." % (p))
+                print("Usage: <model, percent, gridsearch>, %s is not a valid percent." % (p))
         else:
-            print("Usage: <model, percent>, please enter a valid percent.")
+            print("Usage: <model, percent, gridsearch>, please enter a valid percent and 0/1 boolean value for gridsearch.")
+            print("Model Options: Baseline=0, KNNMeans=1, SVD=2, CoClustering=3")

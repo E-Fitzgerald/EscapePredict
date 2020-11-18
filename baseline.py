@@ -31,7 +31,7 @@ def split_data():
         ids.append(row[0])
         X_train.append(row[2:])
         Y_train.append(row[1])
-    
+        
     return X, X_train, Y_train, answers
 
 

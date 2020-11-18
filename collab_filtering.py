@@ -8,6 +8,7 @@ from surprise import Dataset
 from surprise import Reader
 from surprise import KNNWithMeans
 from surprise import SVD
+from surprise import CoClustering
 from surprise.model_selection import GridSearchCV
 
 
@@ -45,9 +46,9 @@ def setup_data():
     return ids, data, answers
 
 
-def CollabFilteringModel(data, knnmeans=True, gridsearch=False):
+def CollabFilteringModel(data, option=1, gridsearch=True):
     
-    if knnmeans:
+    if option==1:
         sim_options = {
             "name":  "pearson_baseline",
             "min_support": 2,
@@ -67,6 +68,8 @@ def CollabFilteringModel(data, knnmeans=True, gridsearch=False):
 
             print(gs.best_score["rmse"])
             print(gs.best_params["rmse"])
+            print(gs.best_score["mae"])
+            print(gs.best_params["mae"])
 
             sim_options = {
                 "name":  gs.best_params["rmse"]["sim_options"]["name"],
@@ -80,7 +83,7 @@ def CollabFilteringModel(data, knnmeans=True, gridsearch=False):
 
         algo.fit(trainingSet)
 
-    else:
+    elif option==2:
         n_epochs = 200
         lr_all = .002
         reg_all = .1
@@ -94,6 +97,12 @@ def CollabFilteringModel(data, knnmeans=True, gridsearch=False):
 
             gs = GridSearchCV(SVD, param_grid, measures=["rmse", "mae"], cv=3)
             gs.fit(data)
+
+            print(gs.best_score["rmse"])
+            print(gs.best_params["rmse"])
+            print(gs.best_score["mae"])
+            print(gs.best_params["mae"])
+
             n_epochs = gs.best_params["rmse"]["n_epochs"]
             lr_all = gs.best_params["rmse"]["lr_all"]
             reg_all = gs.best_params["rmse"]["reg_all"]
@@ -101,6 +110,37 @@ def CollabFilteringModel(data, knnmeans=True, gridsearch=False):
 
         
         algo = SVD(n_epochs=n_epochs, lr_all=lr_all, reg_all=reg_all)
+
+        trainingSet = data.build_full_trainset()
+
+        algo.fit(trainingSet)
+    else:
+        n_cltr_u  = 3
+        n_cltr_i  = 3
+        n_epochs = 200
+        
+        if gridsearch:
+            param_grid = {
+                "n_epochs": [10, 200],
+                "n_cltr_u": [2,3,4,5,6],
+                "n_cltr_i": [2,3,4,5,6]
+            }
+
+            gs = GridSearchCV(CoClustering, param_grid, measures=["rmse", "mae"], cv=3)
+            gs.fit(data)
+
+            print(gs.best_score["rmse"])
+            print(gs.best_params["rmse"])
+            print(gs.best_score["mae"])
+            print(gs.best_params["mae"])
+
+            n_epochs = gs.best_params["rmse"]["n_epochs"]
+            n_cltr_u = gs.best_params["rmse"]["n_cltr_u"]
+            n_cltr_i = gs.best_params["rmse"]["n_cltr_i"]
+        
+
+        
+        algo = CoClustering(n_cltr_u =n_cltr_u , n_epochs=n_epochs, n_cltr_i=n_cltr_i)
 
         trainingSet = data.build_full_trainset()
 
