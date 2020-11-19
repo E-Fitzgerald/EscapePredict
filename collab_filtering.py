@@ -57,9 +57,9 @@ def CollabFilteringModel(data, option=1, gridsearch=True):
 
         if gridsearch:
             sim_options = {
-            "name": ["msd", "cosine", "pearson", "pearson_baseline"],
-            "min_support": [1, 2, 3, 4, 5],
-            "user_based": [False, True],
+            "name": ["pearson_baseline"],
+            "min_support": [2],
+            "user_based": [False],
             }
             param_grid = {"sim_options": sim_options}
 
@@ -85,8 +85,8 @@ def CollabFilteringModel(data, option=1, gridsearch=True):
 
     elif option==2:
         n_epochs = 200
-        lr_all = .002
-        reg_all = .1
+        lr_all = .01
+        reg_all = .05
         
         if gridsearch:
             param_grid = {
@@ -103,9 +103,9 @@ def CollabFilteringModel(data, option=1, gridsearch=True):
             print(gs.best_score["mae"])
             print(gs.best_params["mae"])
 
-            n_epochs = gs.best_params["rmse"]["n_epochs"]
-            lr_all = gs.best_params["rmse"]["lr_all"]
-            reg_all = gs.best_params["rmse"]["reg_all"]
+            n_epochs = gs.best_params["mae"]["n_epochs"]
+            lr_all = gs.best_params["mae"]["lr_all"]
+            reg_all = gs.best_params["mae"]["reg_all"]
         
 
         

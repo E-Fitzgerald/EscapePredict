@@ -14,19 +14,6 @@ import sys
 
 model = int(sys.argv[1])
 
-def plot_roc(true_positive, false_positive):
-    plt.figure()
-    lw = 2
-    plt.plot(false_positive, true_positive, color='darkorange',
-            lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[2])
-    plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic example')
-    plt.legend(loc="lower right")
-    plt.show()
 
 def c_filtering(option, percent, gridsearch):
     ids, data, answers = setup_data()
@@ -74,10 +61,17 @@ def baseline(percent):
             preds.append(1)
         else:
             preds.append(0)
+
+    roomsDone = [x for x in pairs if x[0] in elizabeth_known]
+    known_preds = []
+    limited_answers = []
+    for i in sorted(roomsDone, key = lambda x: x[0]):
+        limited_answers.append(Y[i[0]-1])
+        known_preds.append(i[1])
     
-    rms = sqrt(mean_squared_error(answers, preds))
+    rms = sqrt(mean_squared_error(limited_answers, known_preds))
     print("rms: ", rms)
-    mae = sqrt(mean_absolute_error(answers, preds))
+    mae = mean_absolute_error(limited_answers, known_preds)
     print("mae: ", mae)
 
     stats = check_answers(preds, answers)
